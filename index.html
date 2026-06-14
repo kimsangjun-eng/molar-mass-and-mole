@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Molar Mass & Significant Figures</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:       #0D1B2A;
+    --navy-mid:   #1A2E45;
+    --navy-light: #243B55;
+    --gold:       #B8860B;
+    --gold-bright:#C9A84C;
+    --gold-bg:    #FFF8E7;
+    --white:      #FFFFFF;
+    --bg:         #F0F4F8;
+    --bg-card:    #FFFFFF;
+    --border:     #D0D9E3;
+    --border-dark:#A8B8CC;
+    --text-main:  #0D1B2A;
+    --text-sub:   #3A5068;
+    --text-muted: #6B8296;
+    --green:      #1A7A3E;
+    --red:        #C0392B;
+    --blue-acc:   #1A5C8A;
+    --blue-light: #EBF4FB;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    border-bottom: 3px solid var(--gold-bright);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .header-icon {
+    width: 42px; height: 42px;
+    background: var(--gold-bright);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: var(--navy);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 1.15rem; font-weight: 700; color: #FFFFFF; letter-spacing: 0.02em; }
+  header p  { font-size: 0.78rem; color: var(--gold-bright); margin-top: 2px; }
+
+  /* ── TABS ── */
+  .tab-bar {
+    display: flex;
+    background: var(--navy-mid);
+    padding: 0 32px;
+    gap: 4px;
+  }
+  .tab-btn {
+    padding: 12px 24px;
+    font-size: 0.88rem; font-weight: 600;
+    color: #8AAAC4;
+    border: none; background: none; cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color .2s, border-color .2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--gold-bright); }
+  .tab-btn.active { color: var(--gold-bright); border-bottom-color: var(--gold-bright); }
+
+  /* ── MAIN ── */
+  main { flex: 1; padding: 28px 32px; max-width: 920px; width: 100%; margin: 0 auto; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(13,27,42,0.06);
+  }
+  .card-title {
+    font-size: 0.68rem; font-weight: 700;
+    color: var(--navy-mid);
+    letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── INPUTS ── */
+  .input-row { display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap; }
+  .input-wrap { flex: 1; min-width: 160px; }
+  label.field-label {
+    display: block;
+    font-size: 0.72rem; color: var(--text-sub);
+    margin-bottom: 5px; font-weight: 600;
+  }
+  input[type="text"], input[type="number"], select {
+    width: 100%;
+    background: var(--white);
+    border: 1.5px solid var(--border-dark);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input:focus, select:focus {
+    border-color: var(--navy-mid);
+    box-shadow: 0 0 0 3px rgba(26,46,69,0.12);
+  }
+
+  .btn {
+    padding: 10px 22px;
+    background: var(--navy);
+    color: #FFFFFF;
+    border: none; border-radius: 8px;
+    font-weight: 700; font-size: 0.88rem;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+    align-self: flex-end;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--navy-mid); }
+  .btn:active { transform: scale(0.97); }
+  .btn-secondary {
+    background: var(--bg);
+    color: var(--text-sub);
+    border: 1.5px solid var(--border-dark);
+  }
+  .btn-secondary:hover { background: var(--border); color: var(--text-main); }
+
+  /* ── RESULT BOX ── */
+  .result-box {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    min-height: 60px;
+  }
+  .result-box.has-result { border-color: var(--gold); background: var(--gold-bg); }
+  .result-placeholder { color: var(--text-muted); font-size: 0.85rem; font-style: italic; }
+
+  /* ── FORMULA DISPLAY ── */
+  .formula-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem; color: var(--navy-mid);
+    margin-bottom: 12px; font-weight: 600;
+  }
+  .breakdown-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.84rem; margin-bottom: 14px;
+    background: var(--white);
+    border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .breakdown-table th {
+    text-align: left; color: var(--white);
+    background: var(--navy-mid);
+    font-weight: 600; padding: 7px 12px;
+    font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .breakdown-table td {
+    padding: 7px 12px; color: var(--text-main);
+    border-bottom: 1px solid var(--border);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .breakdown-table tr:last-child td { border-bottom: none; }
+  .breakdown-table tr:nth-child(even) td { background: var(--bg); }
+  .col-elem { color: var(--blue-acc); font-weight: 600; }
+  .col-num  { color: var(--text-sub); text-align: center; }
+  .col-mass { color: var(--text-sub); }
+  .col-sub  { color: var(--navy); font-weight: 600; text-align: right; }
+
+  .total-row {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 12px 0 4px;
+    border-top: 2px solid var(--gold);
+  }
+  .total-label { font-size: 0.85rem; color: var(--text-sub); font-weight: 600; }
+  .total-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem; font-weight: 700; color: var(--navy);
+  }
+  .total-unit { font-size: 0.88rem; color: var(--text-muted); }
+
+  .sf-note {
+    margin-top: 8px; font-size: 0.8rem; color: var(--text-sub);
+    background: var(--white); border-radius: 6px;
+    padding: 8px 12px; border-left: 3px solid var(--gold);
+  }
+  .sf-highlight { color: var(--navy); font-weight: 700; }
+
+  /* ── SF RULES ── */
+  .sf-rules { display: grid; gap: 9px; }
+  .sf-rule {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--bg);
+    border-left: 3px solid var(--gold-bright);
+    border-radius: 0 8px 8px 0;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold-bright);
+  }
+  .sf-rule-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; color: var(--gold); font-weight: 700;
+    flex-shrink: 0; min-width: 20px;
+  }
+  .sf-rule-text { font-size: 0.84rem; line-height: 1.55; color: var(--text-main); }
+  .sf-rule-text strong { color: var(--navy-mid); }
+  .sf-rule-example {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--blue-acc); font-size: 0.78rem; margin-top: 4px;
+    background: var(--blue-light); display: inline-block;
+    padding: 2px 8px; border-radius: 4px;
+  }
+
+  /* ── UNIT CONVERSION ── */
+  .conv-field-label {
+    font-size: 0.7rem; color: var(--text-sub); text-align: center;
+    margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .conv-val {
+    text-align: center;
+    background: var(--white);
+    border: 1.5px solid var(--border-dark);
+    border-radius: 8px;
+    padding: 10px 8px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .conv-val.active-input {
+    border-color: var(--navy-mid);
+    box-shadow: 0 0 0 3px rgba(26,46,69,0.12);
+  }
+  .conv-val input {
+    width: 100%; background: transparent; border: none;
+    color: var(--text-main); font-family: 'JetBrains Mono', monospace;
+    font-size: 0.95rem; text-align: center; outline: none;
+  }
+
+  .conv-result-row {
+    margin-top: 14px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  }
+  .conv-result-item {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 14px;
+    text-align: center;
+  }
+  .conv-result-item.highlighted { border-color: var(--gold); background: var(--gold-bg); }
+  .conv-result-label {
+    font-size: 0.68rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px;
+    font-weight: 600;
+  }
+  .conv-result-val { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text-main); font-weight: 600; }
+  .conv-result-sf  { font-size: 0.7rem; color: var(--gold); margin-top: 4px; font-weight: 600; }
+
+  .molar-mass-input-row { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+
+  .error-msg { color: var(--red); font-size: 0.83rem; margin-top: 8px; font-family: 'JetBrains Mono', monospace; }
+
+  .avogadro-note {
+    font-size: 0.75rem; color: var(--text-muted);
+    margin-top: 12px; text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg); padding: 8px; border-radius: 6px;
+  }
+
+  /* ── PRESETS ── */
+  .preset-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .chip {
+    padding: 5px 13px;
+    background: var(--white);
+    border: 1.5px solid var(--border-dark);
+    border-radius: 20px;
+    font-size: 0.78rem; font-family: 'JetBrains Mono', monospace;
+    color: var(--text-sub); cursor: pointer;
+    transition: all .15s;
+  }
+  .chip:hover { border-color: var(--navy-mid); color: var(--navy); background: var(--blue-light); }
+
+  .conv-steps-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 14px;
+  }
+  .conv-steps-title {
+    font-size: 0.68rem; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px;
+  }
+  .conv-step-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem; color: var(--text-sub); line-height: 2;
+  }
+  .conv-step-result { color: var(--navy); font-weight: 700; }
+
+  .formula-info-badge {
+    display: inline-block;
+    background: var(--blue-light);
+    color: var(--blue-acc);
+    font-size: 0.78rem; font-weight: 600;
+    padding: 5px 12px; border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #BDD9EE;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 14px 16px; }
+    main { padding: 16px; }
+    .tab-bar { padding: 0 16px; }
+    .conv-result-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-icon">M</div>
+  <div>
+    <h1>Molar Mass &amp; Significant Figures</h1>
+    <p>AP Chemistry · Nobel Prep</p>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('calc', this)">⚗ Molar Mass Calculator</button>
+  <button class="tab-btn" onclick="switchTab('conv', this)">⇄ Unit Conversion</button>
+</div>
+
+<main>
+  <!-- ═══ TAB 1: MOLAR MASS ═══ -->
+  <div id="tab-calc" class="tab-panel active">
+
+    <div class="card">
+      <div class="card-title">Chemical Formula Input</div>
+      <div class="preset-chips" id="presetChips"></div>
+      <div class="input-row">
+        <div class="input-wrap">
+          <label class="field-label">Chemical Formula</label>
+          <input type="text" id="formulaInput" placeholder="e.g. H2O, Ca(OH)2, C6H12O6"
+                 oninput="onFormulaInput()" onkeydown="if(event.key==='Enter') calcMolar()">
+        </div>
+        <div class="input-wrap" style="max-width:150px;">
+          <label class="field-label">Sig. Figs to Report</label>
+          <select id="sfSelect" onchange="calcMolar()">
+            <option value="auto">Auto</option>
+            <option value="2">2 SF</option>
+            <option value="3">3 SF</option>
+            <option value="4">4 SF</option>
+            <option value="5">5 SF</option>
+            <option value="6">6 SF</option>
+          </select>
+        </div>
+        <button class="btn" onclick="calcMolar()">Calculate</button>
+        <button class="btn btn-secondary" onclick="resetCalc()">Clear</button>
+      </div>
+      <div id="formulaError" class="error-msg"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Result</div>
+      <div id="resultBox" class="result-box">
+        <span class="result-placeholder">Enter a chemical formula above and press Calculate.</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Significant Figures — Key Rules</div>
+      <div class="sf-rules">
+        <div class="sf-rule">
+          <span class="sf-rule-num">1</span>
+          <div>
+            <div class="sf-rule-text">All <strong>non-zero digits</strong> are significant.</div>
+            <div class="sf-rule-example">1.234 g → 4 sig figs</div>
+          </div>
+        </div>
+        <div class="sf-rule">
+          <span class="sf-rule-num">2</span>
+          <div>
+            <div class="sf-rule-text"><strong>Zeros between</strong> non-zero digits are always significant.</div>
+            <div class="sf-rule-example">1002 g → 4 sig figs</div>
+          </div>
+        </div>
+        <div class="sf-rule">
+          <span class="sf-rule-num">3</span>
+          <div>
+            <div class="sf-rule-text"><strong>Leading zeros</strong> (before the first non-zero digit) are NOT significant.</div>
+            <div class="sf-rule-example">0.0025 g → 2 sig figs</div>
+          </div>
+        </div>
+        <div class="sf-rule">
+          <span class="sf-rule-num">4</span>
+          <div>
+            <div class="sf-rule-text"><strong>Trailing zeros after a decimal point</strong> are significant.</div>
+            <div class="sf-rule-example">2.500 g → 4 sig figs</div>
+          </div>
+        </div>
+        <div class="sf-rule">
+          <span class="sf-rule-num">5</span>
+          <div>
+            <div class="sf-rule-text">In <strong>multiplication/division</strong>: answer has the same # of sig figs as the factor with the <em>fewest</em> sig figs.</div>
+            <div class="sf-rule-example">12.011 × 6 = 72.066 → 72.1 (3 SF)</div>
+          </div>
+        </div>
+        <div class="sf-rule">
+          <span class="sf-rule-num">6</span>
+          <div>
+            <div class="sf-rule-text">In <strong>addition/subtraction</strong>: round to the fewest decimal places.</div>
+            <div class="sf-rule-example">12.011 + 15.999 = 28.010 g/mol</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ TAB 2: UNIT CONVERSION ═══ -->
+  <div id="tab-conv" class="tab-panel">
+
+    <div class="card">
+      <div class="card-title">Substance Setup</div>
+      <div class="molar-mass-input-row">
+        <div class="input-wrap">
+          <label class="field-label">Chemical Formula <span style="color:var(--text-muted); font-weight:400">(auto-fills molar mass)</span></label>
+          <input type="text" id="convFormula" placeholder="e.g. NaCl, H2O, C6H12O6"
+                 oninput="onConvFormulaInput()">
+        </div>
+        <div class="input-wrap" style="max-width:180px;">
+          <label class="field-label">Molar Mass (g/mol)</label>
+          <input type="number" id="convMM" placeholder="e.g. 58.44" step="any"
+                 oninput="onConvChange()">
+        </div>
+      </div>
+      <div id="convFormulaInfo"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Enter Any One Value → Others Calculate Automatically</div>
+      <div class="conv-result-row" style="margin-top:0; margin-bottom:16px;">
+        <div>
+          <div class="conv-field-label">Mass (g)</div>
+          <div class="conv-val" id="cv-g">
+            <input type="number" id="inp-g" placeholder="—" step="any"
+                   oninput="triggerConv('g')" onfocus="setActive('g')">
+          </div>
+        </div>
+        <div>
+          <div class="conv-field-label">Amount (mol)</div>
+          <div class="conv-val" id="cv-mol">
+            <input type="number" id="inp-mol" placeholder="—" step="any"
+                   oninput="triggerConv('mol')" onfocus="setActive('mol')">
+          </div>
+        </div>
+        <div>
+          <div class="conv-field-label">Molecules</div>
+          <div class="conv-val" id="cv-molec">
+            <input type="number" id="inp-molec" placeholder="—" step="any"
+                   oninput="triggerConv('molec')" onfocus="setActive('molec')">
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <div class="input-wrap" style="max-width:140px;">
+          <label class="field-label">Sig. Figs</label>
+          <select id="convSF" onchange="triggerConv(lastActive)">
+            <option value="3">3 SF</option>
+            <option value="4">4 SF</option>
+            <option value="2">2 SF</option>
+            <option value="5">5 SF</option>
+            <option value="6">6 SF</option>
+          </select>
+        </div>
+        <button class="btn btn-secondary" onclick="resetConv()" style="align-self:flex-end;">Clear All</button>
+      </div>
+      <div id="convError" class="error-msg"></div>
+    </div>
+
+    <div class="card" id="convResultCard" style="display:none;">
+      <div class="card-title">Conversion Results</div>
+      <div class="conv-result-row">
+        <div class="conv-result-item" id="res-g">
+          <div class="conv-result-label">Mass</div>
+          <div class="conv-result-val" id="res-g-val">—</div>
+          <div class="conv-result-sf" id="res-g-sf"></div>
+        </div>
+        <div class="conv-result-item" id="res-mol">
+          <div class="conv-result-label">Moles</div>
+          <div class="conv-result-val" id="res-mol-val">—</div>
+          <div class="conv-result-sf" id="res-mol-sf"></div>
+        </div>
+        <div class="conv-result-item" id="res-molec">
+          <div class="conv-result-label">Molecules</div>
+          <div class="conv-result-val" id="res-molec-val">—</div>
+          <div class="conv-result-sf" id="res-molec-sf"></div>
+        </div>
+      </div>
+      <div id="convSteps"></div>
+      <div class="avogadro-note">Avogadro's number: N_A = 6.022 × 10²³ mol⁻¹</div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+/* ══ ATOMIC MASSES ══ */
+const AM = {
+  H:1.008,He:4.0026,Li:6.941,Be:9.0122,B:10.811,C:12.011,N:14.007,O:15.999,
+  F:18.998,Ne:20.180,Na:22.990,Mg:24.305,Al:26.982,Si:28.086,P:30.974,S:32.06,
+  Cl:35.45,Ar:39.948,K:39.098,Ca:40.078,Sc:44.956,Ti:47.867,V:50.942,Cr:51.996,
+  Mn:54.938,Fe:55.845,Co:58.933,Ni:58.693,Cu:63.546,Zn:65.38,Ga:69.723,Ge:72.630,
+  As:74.922,Se:78.971,Br:79.904,Kr:83.798,Rb:85.468,Sr:87.62,Y:88.906,Zr:91.224,
+  Nb:92.906,Mo:95.95,Ru:101.07,Rh:102.91,Pd:106.42,Ag:107.87,Cd:112.41,
+  In:114.82,Sn:118.71,Sb:121.76,Te:127.60,I:126.90,Xe:131.29,Cs:132.91,Ba:137.33,
+  La:138.91,Ce:140.12,Pr:140.91,Nd:144.24,Sm:150.36,Eu:151.96,Gd:157.25,
+  Tb:158.93,Dy:162.50,Ho:164.93,Er:167.26,Tm:168.93,Yb:173.05,Lu:174.97,Hf:178.49,
+  Ta:180.95,W:183.84,Re:186.21,Os:190.23,Ir:192.22,Pt:195.08,Au:196.97,Hg:200.59,
+  Tl:204.38,Pb:207.2,Bi:208.98,Th:232.04,U:238.03
+};
+
+const PRESETS = ['H2O','CO2','NaCl','C6H12O6','H2SO4','Ca(OH)2','Al2(SO4)3','Fe2O3','CaCO3','NH3','HCl','KMnO4'];
+
+/* ══ PARSER ══ */
+function parseFormula(formula) {
+  function parse(str, idx) {
+    const counts = {};
+    while (idx < str.length) {
+      if (str[idx] === '(') {
+        let j = idx + 1, depth = 1;
+        while (j < str.length && depth > 0) {
+          if (str[j] === '(') depth++;
+          else if (str[j] === ')') depth--;
+          j++;
+        }
+        const inner = parse(str, idx + 1);
+        let numStr = '', k = j;
+        while (k < str.length && /\d/.test(str[k])) { numStr += str[k]; k++; }
+        const mult = numStr ? parseInt(numStr) : 1;
+        for (const [el, cnt] of Object.entries(inner.counts)) counts[el] = (counts[el]||0) + cnt * mult;
+        idx = k;
+      } else if (str[idx] === ')') {
+        return { counts, idx };
+      } else if (/[A-Z]/.test(str[idx])) {
+        let el = str[idx], j2 = idx + 1;
+        while (j2 < str.length && /[a-z]/.test(str[j2])) { el += str[j2]; j2++; }
+        if (!(el in AM)) throw new Error(`Unknown element: "${el}"`);
+        let numStr2 = '';
+        while (j2 < str.length && /\d/.test(str[j2])) { numStr2 += str[j2]; j2++; }
+        counts[el] = (counts[el]||0) + (numStr2 ? parseInt(numStr2) : 1);
+        idx = j2;
+      } else {
+        throw new Error(`Unexpected character: "${str[idx]}"`);
+      }
+    }
+    return { counts, idx };
+  }
+  const cleaned = formula.trim().replace(/\s+/g,'');
+  if (!cleaned) throw new Error('Please enter a formula.');
+  return parse(cleaned, 0).counts;
+}
+
+/* ══ SIG FIG ══ */
+function toSF(num, sf) {
+  if (num === 0) return '0';
+  return parseFloat(num.toPrecision(sf)).toPrecision(sf);
+}
+function formatSci(num, sf) {
+  return num.toExponential(sf - 1).replace(/e([+-])(\d+)/, ' × 10^$1$2').replace('10^+','10^').replace('10^-0','10^-').replace('10^0','10^');
+}
+function toDisplaySci(num, sf) {
+  if (num === 0) return '0';
+  const abs = Math.abs(num);
+  if (abs >= 1e6 || (abs < 0.001 && abs > 0)) return formatSci(num, sf);
+  return toSF(num, sf);
+}
+
+/* ══ MOLAR MASS CALC ══ */
+function calcMolar() {
+  const formula = document.getElementById('formulaInput').value.trim();
+  const sfSel   = document.getElementById('sfSelect').value;
+  const errDiv  = document.getElementById('formulaError');
+  const resBox  = document.getElementById('resultBox');
+  errDiv.textContent = '';
+
+  if (!formula) {
+    resBox.className = 'result-box';
+    resBox.innerHTML = '<span class="result-placeholder">Enter a chemical formula above and press Calculate.</span>';
+    return;
+  }
+
+  let counts;
+  try { counts = parseFormula(formula); }
+  catch(e) {
+    errDiv.textContent = '⚠ ' + e.message;
+    resBox.className = 'result-box';
+    resBox.innerHTML = '<span class="result-placeholder">Fix the formula and try again.</span>';
+    return;
+  }
+
+  const entries = Object.entries(counts);
+  let total = 0;
+  const rows = entries.map(([el, n]) => {
+    const mass = AM[el], sub = mass * n;
+    total += sub;
+    return { el, n, mass, sub };
+  });
+
+  const sfNum = sfSel === 'auto' ? 4 : parseInt(sfSel);
+  const formulaFmt = formula.replace(/(\d+)/g, '<sub>$1</sub>');
+
+  let tableHtml = `<table class="breakdown-table">
+    <tr><th>Element</th><th style="text-align:center">Count</th><th>Atomic Mass (g/mol)</th><th style="text-align:right">Subtotal (g/mol)</th></tr>`;
+  rows.forEach(r => {
+    tableHtml += `<tr>
+      <td class="col-elem">${r.el}</td>
+      <td class="col-num">${r.n}</td>
+      <td class="col-mass">${r.mass.toFixed(3)}</td>
+      <td class="col-sub">${(r.mass * r.n).toFixed(4)}</td>
+    </tr>`;
+  });
+  tableHtml += '</table>';
+
+  const sfLabel = sfSel === 'auto' ? `Auto (${sfNum} SF)` : `${sfNum} SF`;
+
+  resBox.className = 'result-box has-result';
+  resBox.innerHTML = `
+    <div class="formula-display">${formulaFmt}</div>
+    ${tableHtml}
+    <div class="total-row">
+      <span class="total-label">Molar Mass =</span>
+      <span class="total-value">${toSF(total, sfNum)}</span>
+      <span class="total-unit">g/mol</span>
+    </div>
+    <div class="sf-note" style="margin-top:10px;">
+      Exact sum: <strong>${total.toFixed(4)} g/mol</strong>
+      &nbsp;→&nbsp;
+      Rounded to <span class="sf-highlight">${sfLabel}</span>:
+      <span class="sf-highlight">${toSF(total, sfNum)} g/mol</span>
+    </div>
+  `;
+
+  document.getElementById('convFormula').value = formula;
+  onConvFormulaInput(true);
+}
+
+function onFormulaInput() { document.getElementById('formulaError').textContent = ''; }
+
+function resetCalc() {
+  document.getElementById('formulaInput').value = '';
+  document.getElementById('formulaError').textContent = '';
+  document.getElementById('resultBox').className = 'result-box';
+  document.getElementById('resultBox').innerHTML = '<span class="result-placeholder">Enter a chemical formula above and press Calculate.</span>';
+}
+
+(function initPresets() {
+  const wrap = document.getElementById('presetChips');
+  PRESETS.forEach(f => {
+    const chip = document.createElement('button');
+    chip.className = 'chip'; chip.textContent = f;
+    chip.onclick = () => { document.getElementById('formulaInput').value = f; calcMolar(); };
+    wrap.appendChild(chip);
+  });
+})();
+
+/* ══ UNIT CONVERSION ══ */
+const AVOGADRO = 6.022e23;
+let lastActive = 'g';
+
+function setActive(field) {
+  lastActive = field;
+  ['g','mol','molec'].forEach(f =>
+    document.getElementById('cv-' + f).classList.toggle('active-input', f === field));
+}
+
+function onConvFormulaInput(silent) {
+  const formula = document.getElementById('convFormula').value.trim();
+  const info = document.getElementById('convFormulaInfo');
+  if (!formula) { info.innerHTML = ''; return; }
+  try {
+    const counts = parseFormula(formula);
+    let mm = 0;
+    Object.entries(counts).forEach(([el, n]) => mm += AM[el] * n);
+    document.getElementById('convMM').value = mm.toFixed(4);
+    info.innerHTML = `<span class="formula-info-badge">✓ M(${formula}) = ${mm.toFixed(4)} g/mol</span>`;
+    if (!silent) triggerConv(lastActive);
+  } catch(e) {
+    info.innerHTML = `<span style="color:var(--red); font-size:0.8rem;">⚠ ${e.message}</span>`;
+    document.getElementById('convMM').value = '';
+  }
+}
+
+function triggerConv(from) {
+  if (!from) from = lastActive;
+  lastActive = from;
+  const mm    = parseFloat(document.getElementById('convMM').value);
+  const sf    = parseInt(document.getElementById('convSF').value);
+  const errDiv = document.getElementById('convError');
+  errDiv.textContent = '';
+
+  const gVal     = parseFloat(document.getElementById('inp-g').value);
+  const molVal   = parseFloat(document.getElementById('inp-mol').value);
+  const molecVal = parseFloat(document.getElementById('inp-molec').value);
+
+  let g, mol, molec;
+
+  if (from === 'g') {
+    if (isNaN(gVal)) { clearConvResults(); return; }
+    if (isNaN(mm)) { errDiv.textContent = '⚠ Enter molar mass or formula above.'; return; }
+    g = gVal; mol = g / mm; molec = mol * AVOGADRO;
+  } else if (from === 'mol') {
+    if (isNaN(molVal)) { clearConvResults(); return; }
+    mol = molVal; molec = mol * AVOGADRO;
+    g = isNaN(mm) ? null : mol * mm;
+  } else {
+    if (isNaN(molecVal)) { clearConvResults(); return; }
+    molec = molecVal; mol = molec / AVOGADRO;
+    g = isNaN(mm) ? null : mol * mm;
+  }
+
+  if (from !== 'g')     document.getElementById('inp-g').value     = g !== null ? toDisplaySci(g, sf) : '';
+  if (from !== 'mol')   document.getElementById('inp-mol').value   = toDisplaySci(mol, sf);
+  if (from !== 'molec') document.getElementById('inp-molec').value = toDisplaySci(molec, sf);
+
+  document.getElementById('convResultCard').style.display = 'block';
+
+  const setRes = (id, val, unit, highlighted) => {
+    document.getElementById('res-' + id).className = 'conv-result-item' + (highlighted ? ' highlighted' : '');
+    if (val === null) {
+      document.getElementById('res-' + id + '-val').textContent = 'N/A';
+      document.getElementById('res-' + id + '-sf').textContent = '(no molar mass)';
+    } else {
+      document.getElementById('res-' + id + '-val').textContent = toDisplaySci(val, sf) + ' ' + unit;
+      document.getElementById('res-' + id + '-sf').textContent = sf + ' sig figs';
+    }
+  };
+  setRes('g',     g,     'g',      from === 'g');
+  setRes('mol',   mol,   'mol',    from === 'mol');
+  setRes('molec', molec, 'molec.', from === 'molec');
+
+  let stepsHtml = '<div class="conv-steps-box"><div class="conv-steps-title">Step-by-step</div>';
+  if (from === 'g' && !isNaN(mm)) {
+    stepsHtml += `<div class="conv-step-line">mol = ${toSF(g,sf)} g ÷ ${mm.toFixed(4)} g/mol = <span class="conv-step-result">${toDisplaySci(mol,sf)} mol</span></div>`;
+    stepsHtml += `<div class="conv-step-line">molecules = ${toDisplaySci(mol,sf)} mol × 6.022×10²³ = <span class="conv-step-result">${formatSci(molec,sf)}</span></div>`;
+  } else if (from === 'mol') {
+    stepsHtml += `<div class="conv-step-line">molecules = ${toSF(mol,sf)} mol × 6.022×10²³ = <span class="conv-step-result">${formatSci(molec,sf)}</span></div>`;
+    if (!isNaN(mm)) stepsHtml += `<div class="conv-step-line">g = ${toSF(mol,sf)} mol × ${mm.toFixed(4)} g/mol = <span class="conv-step-result">${toDisplaySci(g,sf)} g</span></div>`;
+  } else {
+    stepsHtml += `<div class="conv-step-line">mol = ${formatSci(molec,sf)} ÷ 6.022×10²³ = <span class="conv-step-result">${toDisplaySci(mol,sf)} mol</span></div>`;
+    if (!isNaN(mm)) stepsHtml += `<div class="conv-step-line">g = ${toDisplaySci(mol,sf)} mol × ${mm.toFixed(4)} g/mol = <span class="conv-step-result">${toDisplaySci(g,sf)} g</span></div>`;
+  }
+  stepsHtml += '</div>';
+  document.getElementById('convSteps').innerHTML = stepsHtml;
+}
+
+function clearConvResults() { document.getElementById('convResultCard').style.display = 'none'; }
+
+function resetConv() {
+  ['g','mol','molec'].forEach(f => {
+    document.getElementById('inp-' + f).value = '';
+    document.getElementById('cv-' + f).classList.remove('active-input');
+  });
+  document.getElementById('convFormula').value = '';
+  document.getElementById('convMM').value = '';
+  document.getElementById('convFormulaInfo').innerHTML = '';
+  document.getElementById('convError').textContent = '';
+  clearConvResults();
+}
+function onConvChange() { triggerConv(lastActive); }
+
+/* ══ TABS ══ */
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
